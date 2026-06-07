@@ -55,16 +55,13 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
   #app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 18px calc(var(--nav-h) + env(safe-area-inset-bottom) + 24px);min-height:100%;filter:contrast(var(--contrast))}
 
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 18px) 0 10px}
-  .brand{display:flex;align-items:center;gap:9px}
-  .brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--fire),var(--fire-2));display:grid;place-items:center;font-size:1.05em;box-shadow:0 6px 18px rgba(255,61,0,.35)}
-  .brand b{font-weight:700;letter-spacing:.5px;font-size:1.19em}
-  .brand b span{color:var(--fire)}
-  .streak-pill{display:flex;align-items:center;gap:7px;background:var(--surface);border:var(--bw) solid var(--line);padding:7px 13px;border-radius:999px}
-  .streak-pill .n{font-family:var(--mono);font-weight:700;font-size:.94em}
-  .streak-pill small{color:var(--muted);font-size:.62em;text-transform:uppercase;letter-spacing:1px}
+  #app>#view{padding-top:calc(env(safe-area-inset-top) + 18px)}
+  .card-streak{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:5px;background:var(--surface-2);border:var(--bw) solid var(--line);padding:6px 11px;border-radius:999px;z-index:2}
+  .card-streak .n{font-family:var(--mono);font-weight:700;font-size:.85em}
+  .card-streak small{color:var(--muted);font-size:.56em;text-transform:uppercase;letter-spacing:1px}
+  .corner-btn{position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:11px;background:var(--surface-2);border:var(--bw) solid var(--line);color:var(--muted);display:grid;place-items:center;font-size:1.05em;cursor:pointer;z-index:2}
 
-  .card{background:var(--surface);border:var(--bw) solid var(--line);border-radius:20px;padding:18px}
+  .card{position:relative;background:var(--surface);border:var(--bw) solid var(--line);border-radius:20px;padding:18px}
   .card + .card{margin-top:14px}
   .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .card-h h3{font-size:.75em;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
@@ -74,6 +71,8 @@
   .ring-wrap svg{transform:rotate(-90deg);width:100%;height:100%}
   .ring-bg{fill:none;stroke:var(--surface-3);stroke-width:14}
   .ring-fg{fill:none;stroke:url(#grad);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 8px rgba(255,106,26,.45))}
+  .ring-fg.w{stroke:url(#gradW);filter:drop-shadow(0 0 8px rgba(56,189,248,.45))}
+  .ring-state.water{color:var(--water)}
   .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
   .ring-state{font-size:.66em;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600}
   .ring-state.active{color:var(--fire)} .ring-state.done{color:var(--good)}
@@ -101,6 +100,7 @@
   .chip.sel{border-color:var(--fire);background:rgba(255,106,26,.12)}
   .chip .name{font-weight:600;font-size:.94em} .chip.sel .name{color:var(--fire)}
   .chip .sub{font-size:.59em;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+  .chip-cog{min-width:0;display:grid;place-items:center;padding:10px 13px}
 
   .water-bar{height:12px;background:var(--surface-3);border-radius:999px;overflow:hidden;margin:4px 0 12px}
   .water-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,var(--water));border-radius:999px;transition:width .5s cubic-bezier(.4,0,.2,1)}
@@ -170,10 +170,6 @@
 </head>
 <body>
 <div id="app">
-  <div class="topbar">
-    <div class="brand"><div class="logo">🔥</div><b>FAST<span>TRACK</span></b></div>
-    <div class="streak-pill"><span>🔥</span><span class="n" id="streakN">0</span><small id="streakLab">dana</small></div>
-  </div>
   <div id="view"></div>
 </div>
 <nav class="nav" id="nav"></nav>
@@ -192,7 +188,7 @@ const Store=(function(){
   function defaults(){return{
     schema:SCHEMA, user:{id:uuid(),name:'',createdAt:nowISO()},
     settings:{protocol:'16:8',customHours:16,waterGoalMl:2500,glassMl:250,lang:detectLang(),
-      ui:{theme:'auto',fontScale:1,border:'regular',contrast:'normal'}},
+      ui:{theme:'auto'}},
     fasts:[], water:{}, activities:[], updatedAt:nowISO()
   };}
   function normalize(){const d=defaults();
@@ -223,13 +219,13 @@ const Store=(function(){
 
 /* ============================ I18N ============================ */
 const DICT={
-  hr:{navFast:'Post',navHistory:'Povijest',navTraining:'Trening',navSettings:'Postavke',streakDays:'dana',
-    ready:'Spreman',fasting:'Post u tijeku',goalReached:'Cilj dostignut!',goal:'cilj',remaining:'preostalo',aboveGoal:'iznad cilja',
-    fastLabel:'Post',eatingWindow:'Prozor jela',goalAt:'Cilj u',protocol:'Protokol',endFast:'Završi post',startFast:'Započni post',fastStarted:'Post započet 🔥',youPick:'ti biraš',
-    hydrationToday:'Hidratacija · danas',glass:'čaša',minus:'−',
-    niceDone:'Bravo! 🔥',fastEnded:'Post završen',duration:'Trajanje',howFeel:'Kako se osjećaš?',energyLevel:'Razina energije',noteOpt:'Bilješka (opcionalno)',notePh:'npr. lagano, malo gladi navečer...',saveEnd:'Spremi i završi',cancel:'Odustani',fastSaved:'Post spremljen ✓',
-    customProtocol:'Custom protokol',howManyHours:'Koliko sati želiš postiti?',fastingHours:'Sati posta',save:'Spremi',min:'min',
-    overview:'Pregled',streakStat:'🔥 Streak',totalFasts:'Ukupno posta',average:'Prosjek',goalsReached:'Cilj dostignut',last14:'Zadnjih 14 dana',today:'danas',fastHistory:'Povijest posta',goalBadge:'cilj ✓',shortBadge:'kraće',noFasts:'Još nema završenih postova.<br>Započni prvi na kartici Post.',
+  hr:{navFast:'Fast',navHydration:'Hidracija',navHistory:'Povijest',navTraining:'Trening',navSettings:'Postavke',streakDays:'dana',
+    ready:'Spreman',fasting:'Fast u tijeku',goalReached:'Cilj dostignut!',goal:'cilj',remaining:'preostalo',aboveGoal:'iznad cilja',
+    fastLabel:'Fast',eatingWindow:'Prozor jela',goalAt:'Cilj u',protocol:'Protokol',endFast:'Završi fast',startFast:'Započni fast',fastStarted:'Fast započet 🔥',youPick:'ti biraš',
+    hydration:'Hidracija',hydrationToday:'Hidracija · danas',glass:'čaša',minus:'−',dailyGoal:'Dnevni cilj',
+    niceDone:'Bravo! 🔥',fastEnded:'Fast završen',duration:'Trajanje',howFeel:'Kako se osjećaš?',energyLevel:'Razina energije',noteOpt:'Bilješka (opcionalno)',notePh:'npr. lagano, malo gladi navečer...',saveEnd:'Spremi i završi',cancel:'Odustani',fastSaved:'Fast spremljen ✓',
+    customProtocol:'Custom protokol',howManyHours:'Koliko sati želiš fastati?',fastingHours:'Sati fasta',save:'Spremi',min:'min',quickPick:'Brzi izbor',days:'dana',day:'dan',
+    overview:'Pregled',streakStat:'🔥 Streak',totalFasts:'Ukupno fastova',average:'Prosjek',goalsReached:'Cilj dostignut',last14:'Zadnjih 14 dana',today:'danas',fastHistory:'Povijest fasta',goalBadge:'cilj ✓',shortBadge:'kraće',noFasts:'Još nema završenih fastova.<br>Započni prvi na kartici Fast.',
     training:'Trening',total:'Ukupno',fastedStat:'🔥 Na prazno',addTraining:'+ Dodaj trening',recentActivity:'Zadnje aktivnosti',noTraining:'Još nema treninga.',deleteTraining:'Obrisati ovaj trening?',fastedBadge:'fasted',
     addTrainingTitle:'Dodaj trening',type:'Tip',durationMin:'Trajanje (min)',date:'Datum',trainedFasted:'🔥 Trenirao/la na prazno (fasted)',saveTraining:'Spremi trening',trainingSaved:'Trening spremljen 💪',trainPh:'npr. dobar pump, jaka energija...',
     act_strength:'Trening snage',act_running:'Trčanje',act_cycling:'Bicikl',act_walking:'Hodanje',act_cardio:'Kardio',act_other:'Ostalo',
@@ -240,12 +236,12 @@ const DICT={
     advSub:'Privremene UI postavke za čitkost',theme:'Tema',themeAuto:'Auto',themeLight:'Svijetla',themeDark:'Tamna',textSize:'Veličina teksta',contrast:'Kontrast',contrastLow:'Niži',contrastNormal:'Normalan',contrastHigh:'Viši',borderThickness:'Debljina rubova',borderThin:'Tanki',borderRegular:'Normalni',borderThick:'Debeli',done:'Gotovo',
     resetTitle:'Resetirati sve?',resetDesc:'Ovo briše SVE podatke i ne može se poništiti. Za potvrdu upiši riječ:',resetWord:'RESETIRAJ',deleteAll:'Obriši sve',
     today2:'Danas',yesterday:'Jučer'},
-  en:{navFast:'Fast',navHistory:'History',navTraining:'Training',navSettings:'Settings',streakDays:'days',
+  en:{navFast:'Fast',navHydration:'Hydration',navHistory:'History',navTraining:'Training',navSettings:'Settings',streakDays:'days',
     ready:'Ready',fasting:'Fasting',goalReached:'Goal reached!',goal:'goal',remaining:'remaining',aboveGoal:'above goal',
     fastLabel:'Fast',eatingWindow:'Eating window',goalAt:'Goal at',protocol:'Protocol',endFast:'End fast',startFast:'Start fast',fastStarted:'Fast started 🔥',youPick:'you pick',
-    hydrationToday:'Hydration · today',glass:'glass',minus:'−',
+    hydrationToday:'Hydration · today',glass:'glass',minus:'−',dailyGoal:'Daily goal',
     niceDone:'Nice! 🔥',fastEnded:'Fast ended',duration:'Duration',howFeel:'How do you feel?',energyLevel:'Energy level',noteOpt:'Note (optional)',notePh:'e.g. easy, a bit hungry in the evening...',saveEnd:'Save & end',cancel:'Cancel',fastSaved:'Fast saved ✓',
-    customProtocol:'Custom protocol',howManyHours:'How many hours do you want to fast?',fastingHours:'Fasting hours',save:'Save',min:'min',
+    customProtocol:'Custom protocol',howManyHours:'How many hours do you want to fast?',fastingHours:'Fasting hours',save:'Save',min:'min',quickPick:'Quick pick',days:'days',day:'day',
     overview:'Overview',streakStat:'🔥 Streak',totalFasts:'Total fasts',average:'Average',goalsReached:'Goals reached',last14:'Last 14 days',today:'today',fastHistory:'Fast history',goalBadge:'goal ✓',shortBadge:'short',noFasts:'No completed fasts yet.<br>Start your first one on the Fast tab.',
     training:'Training',total:'Total',fastedStat:'🔥 Fasted',addTraining:'+ Add training',recentActivity:'Recent activity',noTraining:'No training yet.',deleteTraining:'Delete this training?',fastedBadge:'fasted',
     addTrainingTitle:'Add training',type:'Type',durationMin:'Duration (min)',date:'Date',trainedFasted:'🔥 Trained fasted',saveTraining:'Save training',trainingSaved:'Training saved 💪',trainPh:'e.g. good pump, strong energy...',
@@ -265,7 +261,7 @@ const locale=()=>lang()==='hr'?'hr-HR':'en-GB';
 /* ============================ HELPERS ============================ */
 const $=s=>document.querySelector(s);
 const view=$('#view');
-const PROTOCOLS=[{id:'16:8',h:16,sub:'16h'},{id:'18:6',h:18,sub:'18h'},{id:'20:4',h:20,sub:'20h'},{id:'OMAD',h:23,sub:'23h'},{id:'custom',h:null,sub:'custom'}];
+const PROTOCOLS=[{id:'16:8',h:16},{id:'18:6',h:18},{id:'20:4',h:20},{id:'OMAD',h:23}];
 const ACT_TYPES=[{k:'strength',e:'🏋️'},{k:'running',e:'🏃'},{k:'cycling',e:'🚴'},{k:'walking',e:'🚶'},{k:'cardio',e:'🤸'},{k:'other',e:'⚡'}];
 const MOODS=['😣','😕','😐','🙂','😄'];
 const pad=n=>String(n).padStart(2,'0');
@@ -279,15 +275,12 @@ function relDay(d){const k=dateKey(d),tk=dateKey(new Date()),y=dateKey(new Date(
 let toastT;function toast(m){const el=$('#toast');el.textContent=m;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1900);}
 function computeStreak(){const g=new Set();Store.fasts().forEach(f=>{if(f.endAt&&hoursBetween(f.startAt,f.endAt)>=f.targetHours)g.add(dateKey(f.startAt));});
   let s=0,cur=new Date();if(!g.has(dateKey(cur)))cur=new Date(Date.now()-864e5);while(g.has(dateKey(cur))){s++;cur=new Date(cur.getTime()-864e5);}return s;}
-function refreshStreak(){$('#streakN').textContent=computeStreak();$('#streakLab').textContent=t('streakDays');}
+function refreshStreak(){const el=$('#streakN');if(!el)return;el.textContent=computeStreak();$('#streakLab').textContent=t('streakDays');}
 
 /* ============================ APPLY UI (theme/font/border/contrast) ====== */
 function applyUI(){
   const ui=Store.settings().ui, root=document.documentElement;
   root.setAttribute('data-theme',ui.theme);
-  root.style.setProperty('--fs',ui.fontScale);
-  root.style.setProperty('--bw',({thin:'1px',regular:'2px',thick:'3px'})[ui.border]||'2px');
-  root.style.setProperty('--contrast',({low:'.9',normal:'1',high:'1.18'})[ui.contrast]||'1');
   document.querySelector('html').setAttribute('lang',lang());
   let resolved=ui.theme;
   if(resolved==='auto')resolved=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
@@ -297,9 +290,10 @@ function applyUI(){
 /* ============================ TIMER VIEW ============================ */
 function renderTimer(){
   const s=Store.settings(),active=Store.activeFast(),tH=active?active.targetHours:targetHours();
-  const wk=dateKey(new Date()),water=Store.getWater(wk),goal=s.waterGoalMl,wpct=Math.min(100,Math.round(water/goal*100)),C=2*Math.PI*118;
+  const C=2*Math.PI*118,isCustom=s.protocol==='custom';
   view.innerHTML=`
     <div class="card timer-card fade">
+      <div class="card-streak"><span>🔥</span><span class="n" id="streakN">0</span><small id="streakLab">${t('streakDays')}</small></div>
       <div class="ring-wrap"><svg viewBox="0 0 262 262">
         <defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff8a3d"/><stop offset="100%" stop-color="#ff3d00"/></linearGradient></defs>
         <circle class="ring-bg" cx="131" cy="131" r="118"/>
@@ -313,23 +307,15 @@ function renderTimer(){
       <div class="window-row">
         <div class="wi"><div class="lab">${t('fastLabel')}</div><div class="val">${tH}h</div></div>
         <div class="wi"><div class="lab">${t('eatingWindow')}</div><div class="val">${Math.max(0,24-tH)}h</div></div>
-        <div class="wi"><div class="lab">${active?t('goalAt'):t('protocol')}</div><div class="val" id="endVal">${active?'':s.protocol}</div></div>
+        <div class="wi"><div class="lab">${active?t('goalAt'):t('protocol')}</div><div class="val" id="endVal">${active?'':(isCustom?tH+'h':s.protocol)}</div></div>
       </div>
+      ${active?'':`<div class="proto-grid mt" id="protoGrid">${PROTOCOLS.map(p=>`<div class="chip ${s.protocol===p.id?'sel':''}" data-p="${p.id}"><div class="name">${p.id}</div></div>`).join('')}<div class="chip chip-cog ${isCustom?'sel':''}" id="customChip" title="${t('customProtocol')}"><div class="name">⚙️</div></div></div>`}
       ${active?`<button class="btn btn-stop mt" id="endBtn">${t('endFast')}</button>`:`<button class="btn btn-fire mt" id="startBtn">${t('startFast')}</button>`}
-    </div>
-    ${active?'':`<div class="card fade"><div class="card-h"><h3>${t('protocol')}</h3></div>
-      <div class="proto-grid" id="protoGrid">${PROTOCOLS.map(p=>`<div class="chip ${s.protocol===p.id?'sel':''}" data-p="${p.id}"><div class="name">${p.id}</div><div class="sub">${p.id==='custom'?(s.protocol==='custom'?s.customHours+'h':t('youPick')):p.sub}</div></div>`).join('')}</div></div>`}
-    <div class="card fade"><div class="card-h"><h3>${t('hydrationToday')}</h3></div>
-      <div class="water-stat"><div class="big">${(water/1000).toFixed(2)} <span>/ ${(goal/1000).toFixed(1)} L</span></div></div>
-      <div class="water-bar"><div class="water-fill" style="width:${wpct}%"></div></div>
-      <div class="water-btns">
-        <button class="btn btn-sm" data-w="${s.glassMl}">+ ${t('glass')} (${s.glassMl}ml)</button>
-        <button class="btn btn-sm" data-w="500">+ 500ml</button>
-        <button class="btn btn-sm" data-w="-${s.glassMl}">${t('minus')}</button></div></div>`;
+    </div>`;
   if(active){$('#endBtn').onclick=()=>openEndSheet(active);}
   else{$('#startBtn').onclick=()=>{Store.startFast(targetHours());toast(t('fastStarted'));render('timer');};
-    $('#protoGrid').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{if(c.dataset.p==='custom'){openCustomSheet();return;}Store.setSettings({protocol:c.dataset.p});render('timer');});}
-  view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{Store.addWater(wk,parseInt(b.dataset.w,10));render('timer');});
+    $('#protoGrid').querySelectorAll('.chip[data-p]').forEach(c=>c.onclick=()=>{Store.setSettings({protocol:c.dataset.p});render('timer');});
+    $('#customChip').onclick=openCustomSheet;}
   tick();
 }
 function tick(){const active=Store.activeFast(),ring=$('#ringFg');if(!ring)return;const C=2*Math.PI*118;
@@ -340,6 +326,38 @@ function tick(){const active=Store.activeFast(),ring=$('#ringFg');if(!ring)retur
     else{st.textContent=t('fasting');st.className='ring-state active';sub.innerHTML=t('remaining')+' <b>'+fmtDur(tm-el)+'</b>';}
     const end=new Date(new Date(active.startAt).getTime()+tm);if(ev)ev.textContent=pad(end.getHours())+':'+pad(end.getMinutes());}
   else ring.style.strokeDashoffset=C;}
+
+/* ============================ HYDRATION VIEW ============================ */
+function renderHydration(){
+  const s=Store.settings(),wk=dateKey(new Date()),water=Store.getWater(wk),goal=s.waterGoalMl;
+  const C=2*Math.PI*118,pct=Math.min(1,water/goal),pctTxt=Math.round(water/goal*100);
+  view.innerHTML=`
+    <div class="card timer-card fade">
+      <button class="corner-btn" id="goalCog" title="${t('dailyGoal')}">⚙️</button>
+      <div class="ring-wrap"><svg viewBox="0 0 262 262">
+        <defs><linearGradient id="gradW" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient></defs>
+        <circle class="ring-bg" cx="131" cy="131" r="118"/>
+        <circle class="ring-fg w" cx="131" cy="131" r="118" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"/>
+      </svg>
+        <div class="ring-center">
+          <div class="ring-state water">${pctTxt}%</div>
+          <div class="ring-time">${(water/1000).toFixed(2)}<span style="font-size:.45em"> L</span></div>
+          <div class="ring-sub">${t('goal')} ${(goal/1000).toFixed(1)} L</div>
+        </div></div>
+      <div class="water-btns mt">
+        <button class="btn btn-sm" data-w="${s.glassMl}">+ ${t('glass')} (${s.glassMl}ml)</button>
+        <button class="btn btn-sm" data-w="500">+ 500ml</button>
+        <button class="btn btn-sm" data-w="-${s.glassMl}">${t('minus')}</button></div>
+    </div>`;
+  $('#goalCog').onclick=openWaterGoalSheet;
+  view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{Store.addWater(wk,parseInt(b.dataset.w,10));render('hydration');});
+}
+function openWaterGoalSheet(){const s=Store.settings();
+  openSheet(`<h2>${t('hydration')}</h2>
+    <label class="fl">${t('dailyGoalMl')}</label><input class="fi" id="goalIn" type="number" step="100" value="${s.waterGoalMl}">
+    <label class="fl">${t('glassSizeMl')}</label><input class="fi" id="glassIn" type="number" step="50" value="${s.glassMl}">
+    <button class="btn btn-fire mt" id="saveGoal">${t('save')}</button>`);
+  $('#saveGoal').onclick=()=>{Store.setSettings({waterGoalMl:Math.max(500,parseInt($('#goalIn').value,10)||2500),glassMl:Math.max(50,parseInt($('#glassIn').value,10)||250)});closeSheet();toast(t('saved'));render('hydration');};}
 
 /* ============================ SHEETS ============================ */
 function openEndSheet(fast){const el=Date.now()-new Date(fast.startAt),reached=el>=fast.targetHours*3600000;let mood=null,energy=null;
@@ -354,10 +372,15 @@ function openEndSheet(fast){const el=Date.now()-new Date(fast.startAt),reached=e
   $('#cancelEnd').onclick=closeSheet;
   $('#saveEnd').onclick=()=>{Store.endFast(fast.id,{mood,energy,note:$('#noteIn').value.trim()});closeSheet();toast(t('fastSaved'));refreshStreak();render('timer');};}
 function openCustomSheet(){const s=Store.settings();
+  const presets=[1,2,3,5,7];
   openSheet(`<h2>${t('customProtocol')}</h2><div class="sd">${t('howManyHours')}</div>
-    <label class="fl">${t('fastingHours')}</label><input class="fi" id="customH" type="number" min="1" max="48" value="${s.customHours}">
+    <label class="fl">${t('quickPick')}</label>
+    <div class="seg" id="dayPresets">${presets.map(d=>`<div class="chip" data-h="${d*24}"><div class="name">${d}</div><div class="sub">${d===1?t('day'):t('days')}</div></div>`).join('')}</div>
+    <label class="fl">${t('fastingHours')}</label><input class="fi" id="customH" type="number" min="1" max="240" value="${s.customHours}">
     <button class="btn btn-fire mt" id="saveCustom">${t('save')}</button>`);
-  $('#saveCustom').onclick=()=>{const h=Math.min(48,Math.max(1,parseInt($('#customH').value,10)||16));Store.setSettings({protocol:'custom',customHours:h});closeSheet();render(currentTab);};}
+  const save=h=>{const v=Math.min(240,Math.max(1,parseInt(h,10)||16));Store.setSettings({protocol:'custom',customHours:v});closeSheet();render(currentTab);};
+  $('#dayPresets').querySelectorAll('.chip').forEach(c=>c.onclick=()=>save(c.dataset.h));
+  $('#saveCustom').onclick=()=>save($('#customH').value);}
 
 /* ============================ HISTORY ============================ */
 function renderHistory(){
@@ -423,49 +446,25 @@ function renderSettings(){
       <div class="seg" id="langSeg">
         <div class="chip ${lang()==='hr'?'sel':''}" data-l="hr"><div class="name">HR</div></div>
         <div class="chip ${lang()==='en'?'sel':''}" data-l="en"><div class="name">EN</div></div></div></div>
-    <div class="card fade"><div class="card-h"><h3>${t('defaultProtocol')}</h3></div>
-      <div class="proto-grid" id="protoSet">${PROTOCOLS.map(p=>`<div class="chip ${s.protocol===p.id?'sel':''}" data-p="${p.id}"><div class="name">${p.id}</div><div class="sub">${p.id==='custom'?s.customHours+'h':p.sub}</div></div>`).join('')}</div></div>
-    <div class="card fade"><div class="card-h"><h3>${t('hydration')}</h3></div>
-      <label class="fl">${t('dailyGoalMl')}</label><input class="fi" id="goalIn" type="number" step="100" value="${s.waterGoalMl}">
-      <label class="fl">${t('glassSizeMl')}</label><input class="fi" id="glassIn" type="number" step="50" value="${s.glassMl}">
-      <button class="btn btn-ghost mt" id="saveWater">${t('save')}</button></div>
+    <div class="card fade"><div class="card-h"><h3>${t('theme')}</h3></div>
+      <div class="seg" id="themeSeg">
+        <div class="chip ${s.ui.theme==='auto'?'sel':''}" data-th="auto"><div class="name">${t('themeAuto')}</div></div>
+        <div class="chip ${s.ui.theme==='light'?'sel':''}" data-th="light"><div class="name">${t('themeLight')}</div></div>
+        <div class="chip ${s.ui.theme==='dark'?'sel':''}" data-th="dark"><div class="name">${t('themeDark')}</div></div></div></div>
     <div class="card fade"><div class="card-h"><h3>${t('data')}</h3></div>
       <button class="btn btn-ghost" id="exportBtn">${t('exportBtn')}</button>
       <button class="btn btn-ghost mt" id="importBtn">${t('importBtn')}</button>
       <input type="file" id="importFile" accept="application/json" class="hidden">
-      <button class="btn btn-ghost mt" id="advBtn">⚙️ ${t('advanced')}</button>
       <button class="btn btn-ghost mt" id="resetBtn" style="color:#ff6b6b;border-color:rgba(255,107,107,.4)">${t('resetAll')}</button>
       ${Store.memoryOnly?`<div class="empty" style="text-align:left;color:var(--warn);font-size:.62em;padding:10px 0 0">${t('memoryWarn')}</div>`:''}</div>
     <div class="empty" style="padding:14px 8px;font-size:.62em">${t('footer')}</div>`;
   $('#nameIn').onchange=e=>{Store.setUserName(e.target.value.trim());toast(t('saved'));};
   $('#langSeg').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{Store.setSettings({lang:c.dataset.l});applyUI();render('settings');refreshStreak();renderNav();});
-  $('#protoSet').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{if(c.dataset.p==='custom'){openCustomSheet();return;}Store.setSettings({protocol:c.dataset.p});render('settings');});
-  $('#saveWater').onclick=()=>{Store.setSettings({waterGoalMl:Math.max(500,parseInt($('#goalIn').value,10)||2500),glassMl:Math.max(50,parseInt($('#glassIn').value,10)||250)});toast(t('saved'));};
+  $('#themeSeg').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{Store.setUI({theme:c.dataset.th});applyUI();render('settings');});
   $('#exportBtn').onclick=()=>{const b=new Blob([Store.export()],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='fasttrack-backup-'+dateKey(new Date())+'.json';a.click();};
   $('#importBtn').onclick=()=>$('#importFile').click();
   $('#importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{Store.import(r.result);applyUI();toast(t('saved')+' ✓');refreshStreak();renderNav();render('settings');}catch(err){toast('Error: '+err.message);}};r.readAsText(f);};
-  $('#advBtn').onclick=openAdvancedSheet;
   $('#resetBtn').onclick=openResetSheet;
-}
-
-/* ============================ ADVANCED (UI tweaks) ============================ */
-function openAdvancedSheet(){
-  const ui=Store.settings().ui;
-  const seg=(opts,cur,attr)=>`<div class="seg">${opts.map(o=>`<div class="chip ${cur===o.v?'sel':''}" data-${attr}="${o.v}"><div class="name" style="font-size:.85em">${o.l}</div></div>`).join('')}</div>`;
-  openSheet(`<h2>⚙️ ${t('advanced')}</h2><div class="sd">${t('advSub')}</div>
-    <label class="fl">${t('theme')}</label>${seg([{v:'auto',l:t('themeAuto')},{v:'light',l:t('themeLight')},{v:'dark',l:t('themeDark')}],ui.theme,'th')}
-    <label class="fl">${t('textSize')}</label>
-    <div class="stepper"><button id="fsMinus">−</button><div class="sval" id="fsVal">${Math.round(ui.fontScale*100)}%</div><button id="fsPlus">+</button></div>
-    <label class="fl">${t('contrast')}</label>${seg([{v:'low',l:t('contrastLow')},{v:'normal',l:t('contrastNormal')},{v:'high',l:t('contrastHigh')}],ui.contrast,'ct')}
-    <label class="fl">${t('borderThickness')}</label>${seg([{v:'thin',l:t('borderThin')},{v:'regular',l:t('borderRegular')},{v:'thick',l:t('borderThick')}],ui.border,'bd')}
-    <button class="btn btn-fire mt" id="advDone">${t('done')}</button>`);
-  const live=()=>{applyUI();};
-  $('#scrim').querySelectorAll('[data-th]').forEach(c=>c.onclick=()=>{Store.setUI({theme:c.dataset.th});live();openAdvancedSheet();});
-  $('#scrim').querySelectorAll('[data-ct]').forEach(c=>c.onclick=()=>{Store.setUI({contrast:c.dataset.ct});live();openAdvancedSheet();});
-  $('#scrim').querySelectorAll('[data-bd]').forEach(c=>c.onclick=()=>{Store.setUI({border:c.dataset.bd});live();openAdvancedSheet();});
-  $('#fsMinus').onclick=()=>{Store.setUI({fontScale:Math.max(.9,+(ui.fontScale-.1).toFixed(2))});live();openAdvancedSheet();};
-  $('#fsPlus').onclick=()=>{Store.setUI({fontScale:Math.min(1.6,+(ui.fontScale+.1).toFixed(2))});live();openAdvancedSheet();};
-  $('#advDone').onclick=()=>{closeSheet();render('settings');};
 }
 
 /* ============================ RESET (type-to-confirm) ============================ */
@@ -484,11 +483,11 @@ function openResetSheet(){
 /* ============================ NAV / SHEET / BOOT ============================ */
 function openSheet(html){const sc=$('#scrim');sc.innerHTML=`<div class="sheet">${html}</div>`;sc.classList.add('show');sc.onclick=e=>{if(e.target===sc)closeSheet();};}
 function closeSheet(){$('#scrim').classList.remove('show');$('#scrim').innerHTML='';}
-const NAV=[{tab:'timer',i:'⏱',k:'navFast'},{tab:'history',i:'📊',k:'navHistory'},{tab:'activity',i:'💪',k:'navTraining'},{tab:'settings',i:'⚙️',k:'navSettings'}];
+const NAV=[{tab:'timer',i:'⏱',k:'navFast'},{tab:'hydration',i:'💧',k:'navHydration'},{tab:'history',i:'📊',k:'navHistory'},{tab:'activity',i:'💪',k:'navTraining'},{tab:'settings',i:'⚙️',k:'navSettings'}];
 function renderNav(){$('#nav').innerHTML=NAV.map(n=>`<button data-tab="${n.tab}" class="${n.tab===currentTab?'on':''}"><span class="ni">${n.i}</span><span class="nl">${t(n.k)}</span></button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>render(b.dataset.tab));}
 let currentTab='timer';
-const R={timer:renderTimer,history:renderHistory,activity:renderActivity,settings:renderSettings};
+const R={timer:renderTimer,hydration:renderHydration,history:renderHistory,activity:renderActivity,settings:renderSettings};
 function render(tab){currentTab=tab;R[tab]();refreshStreak();$('#nav').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));}
 
 Store.init();
