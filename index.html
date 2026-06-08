@@ -6,9 +6,9 @@
 <meta name="theme-color" content="#0a0a0c" id="themeColor">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="FastTrack">
-<title>FastTrack</title>
-<link rel="manifest" href='data:application/json,{"name":"FastTrack","short_name":"FastTrack","display":"standalone","background_color":"%230a0a0c","theme_color":"%230a0a0c","start_url":"."}'>
+<meta name="apple-mobile-web-app-title" content="NULA">
+<title>NULA</title>
+<link rel="manifest" href='data:application/json,{"name":"NULA","short_name":"NULA","display":"standalone","background_color":"%230a0a0c","theme_color":"%230a0a0c","start_url":"."}'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -57,8 +57,7 @@
 
   .appbar{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 18px) 0 12px}
   .brand{display:flex;align-items:center;gap:9px}
-  .brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--fire),var(--fire-2));display:grid;place-items:center;font-size:1.05em;box-shadow:0 6px 18px rgba(255,61,0,.35)}
-  .brand b{font-weight:700;letter-spacing:.5px;font-size:1.19em}
+  .brand b{font-weight:700;letter-spacing:1px;font-size:1.25em}
   .brand b span{color:var(--fire)}
   .iconbtn{background:none;border:none;color:var(--muted);font-size:1.4em;line-height:1;cursor:pointer;padding:6px;transition:color .2s}
   .iconbtn:active{color:var(--fire)}
@@ -73,7 +72,7 @@
   .range-seg .rc.sel{border-color:var(--fire);color:var(--fire);background:rgba(255,106,26,.12)}
 
   .timer-card{text-align:center;padding:26px 18px 22px;background:radial-gradient(120% 90% at 50% 0%, rgba(255,106,26,.08), transparent 55%), var(--surface)}
-  .ring-wrap{position:relative;width:262px;height:262px;margin:6px auto 4px;max-width:80vw;max-height:80vw}
+  .ring-wrap{position:relative;width:262px;height:262px;margin:6px auto 4px;max-width:80vw;max-height:80vw;cursor:pointer}
   .ring-wrap svg{transform:rotate(-90deg);width:100%;height:100%}
   .ring-bg{fill:none;stroke:var(--surface-3);stroke-width:14}
   .ring-fg{fill:none;stroke:url(#grad);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 8px rgba(255,106,26,.45))}
@@ -85,6 +84,7 @@
   .ring-time{font-family:var(--mono);font-weight:700;font-size:2.55em;line-height:1.05;letter-spacing:-1px;font-variant-numeric:tabular-nums}
   .ring-sub{font-size:.75em;color:var(--muted);letter-spacing:.3px}
   .ring-sub b{color:var(--text);font-family:var(--mono);font-weight:400}
+  .ring-stage{font-size:.6em;letter-spacing:.5px;padding:3px 9px;border-radius:999px;background:rgba(255,106,26,.14);color:var(--fire);font-weight:600;margin-top:4px}
 
   .window-row{display:flex;justify-content:center;gap:22px;margin:14px 0 4px}
   .window-row .wi{text-align:center}
@@ -122,9 +122,9 @@
   .row .meta{flex:1;min-width:0}
   .row .meta .t{font-size:.9em;font-weight:500}
   .row .meta .s{font-size:.72em;color:var(--muted);margin-top:1px}
-  .row .right{text-align:right;flex:0 0 auto}
+  .row .right{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 0 auto}
   .row .right .v{font-family:var(--mono);font-size:.875em}
-  .row .right .badge{font-size:.56em;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:6px;display:inline-block;margin-top:3px}
+  .row .right .badge{font-size:.56em;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:6px;display:inline-block}
   .badge.ok{background:rgba(52,211,153,.16);color:var(--good)}
   .badge.short{background:rgba(251,191,36,.16);color:var(--warn)}
   .badge.fasted{background:rgba(255,106,26,.16);color:var(--fire)}
@@ -132,9 +132,14 @@
   .heat{display:flex;gap:5px;margin-bottom:4px}
   .heat .d{flex:1;aspect-ratio:1/2.2;border-radius:5px;background:var(--surface-3)}
   .heat .d.l1{background:rgba(255,106,26,.3)} .heat .d.l2{background:rgba(255,106,26,.58)} .heat .d.l3{background:var(--fire)}
-  .heat .d.future{opacity:.35}
-  .heat.month .d{border-radius:3px}
   .heat-labels{display:flex;justify-content:space-between;font-size:.56em;color:var(--muted-2);letter-spacing:.5px;margin-top:6px}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal .wd{font-size:.5em;text-align:center;letter-spacing:.5px;text-transform:uppercase;color:var(--muted-2);padding-bottom:2px}
+  .cal .c{aspect-ratio:1;border-radius:6px;background:var(--surface-3);display:grid;place-items:center;font-size:.62em;color:var(--muted-2)}
+  .cal .c.empty{background:transparent}
+  .cal .c.l1{background:rgba(255,106,26,.3)} .cal .c.l2{background:rgba(255,106,26,.58)} .cal .c.l3{background:var(--fire);color:#fff}
+  .cal .c.future{opacity:.35}
+  .cal .c.today{outline:1.5px solid var(--fire);outline-offset:-1px}
 
   .empty{text-align:center;color:var(--muted);font-size:.81em;padding:24px 8px}
   .empty .em{font-size:2.3em;display:block;margin-bottom:8px;opacity:.6}
@@ -180,7 +185,7 @@
 <body>
 <div id="app">
   <header class="appbar">
-    <div class="brand"><div class="logo">🔥</div><b>FAST<span>TRACK</span></b></div>
+    <div class="brand"><b>NU<span>LA</span></b></div>
     <button class="iconbtn" id="settingsBtn" aria-label="Settings">⚙️</button>
   </header>
   <div id="view"></div>
@@ -248,7 +253,8 @@ const DICT={
     profile:'Profil',nameNick:'Ime / nadimak',namePh:'npr. Pho',savedForGroups:'spremljen za buduće grupe',
     defaultProtocol:'Zadani protokol',hydration:'Hidratacija',dailyGoalMl:'Dnevni cilj (ml)',glassSizeMl:'Veličina čaše (ml)',language:'Jezik',
     data:'Podaci',exportBtn:'⬇ Export (backup JSON)',importBtn:'⬆ Import iz fajla',resetAll:'Resetiraj sve',memoryWarn:'⚠ Spremanje na disk nije dostupno u ovom pregledu — podaci se neće zadržati. Radi normalno kad je app hostan ili spremljen kao fajl.',
-    advanced:'Napredno · izgled',footer:'FastTrack v1 · svatko za sebe',saved:'Spremljeno',
+    advanced:'Napredno · izgled',footer:'NULA v1 · svatko za sebe',saved:'Spremljeno',
+    elapsedLab:'proteklo',stFed:'Sito stanje',stSugar:'Šećer pada',stBurn:'Sagorijevanje masti',stKetosis:'Ketoza',stAuto:'Autofagija',
     advSub:'Privremene UI postavke za čitkost',theme:'Tema',themeAuto:'Auto',themeLight:'Svijetla',themeDark:'Tamna',textSize:'Veličina teksta',contrast:'Kontrast',contrastLow:'Niži',contrastNormal:'Normalan',contrastHigh:'Viši',borderThickness:'Debljina rubova',borderThin:'Tanki',borderRegular:'Normalni',borderThick:'Debeli',done:'Gotovo',
     resetTitle:'Resetirati sve?',resetDesc:'Ovo briše SVE podatke i ne može se poništiti. Za potvrdu upiši riječ:',resetWord:'RESETIRAJ',deleteAll:'Obriši sve',
     today2:'Danas',yesterday:'Jučer'},
@@ -266,7 +272,8 @@ const DICT={
     profile:'Profile',nameNick:'Name / nickname',namePh:'e.g. Pho',savedForGroups:'saved for future groups',
     defaultProtocol:'Default protocol',hydration:'Hydration',dailyGoalMl:'Daily goal (ml)',glassSizeMl:'Glass size (ml)',language:'Language',
     data:'Data',exportBtn:'⬇ Export (backup JSON)',importBtn:'⬆ Import from file',resetAll:'Reset everything',memoryWarn:'⚠ Disk storage is unavailable in this preview — data will not persist. Works normally once the app is hosted or saved as a file.',
-    advanced:'Advanced · appearance',footer:'FastTrack v1 · solo mode',saved:'Saved',
+    advanced:'Advanced · appearance',footer:'NULA v1 · solo mode',saved:'Saved',
+    elapsedLab:'elapsed',stFed:'Fed',stSugar:'Sugar dropping',stBurn:'Fat burning',stKetosis:'Ketosis',stAuto:'Autophagy',
     advSub:'Temporary UI settings for readability',theme:'Theme',themeAuto:'Auto',themeLight:'Light',themeDark:'Dark',textSize:'Text size',contrast:'Contrast',contrastLow:'Lower',contrastNormal:'Normal',contrastHigh:'Higher',borderThickness:'Border thickness',borderThin:'Thin',borderRegular:'Regular',borderThick:'Thick',done:'Done',
     resetTitle:'Reset everything?',resetDesc:'This deletes ALL data and cannot be undone. Type the word to confirm:',resetWord:'RESET',deleteAll:'Delete everything',
     today2:'Today',yesterday:'Yesterday'}
@@ -279,6 +286,8 @@ const locale=()=>lang()==='hr'?'hr-HR':'en-GB';
 const $=s=>document.querySelector(s);
 const view=$('#view');
 const PROTOCOLS=[{id:'16:8',h:16},{id:'18:6',h:18},{id:'20:4',h:20},{id:'OMAD',h:23}];
+const STAGES=[{h:0,e:'🍽️',k:'stFed'},{h:4,e:'📉',k:'stSugar'},{h:12,e:'🔥',k:'stBurn'},{h:16,e:'⚡',k:'stKetosis'},{h:24,e:'♻️',k:'stAuto'}];
+const stageFor=h=>STAGES.reduce((a,s)=>h>=s.h?s:a,STAGES[0]);
 const ACT_TYPES=[{k:'strength',e:'🏋️'},{k:'running',e:'🏃'},{k:'cycling',e:'🚴'},{k:'walking',e:'🚶'},{k:'cardio',e:'🤸'},{k:'other',e:'⚡'}];
 const MOODS=['😣','😕','😐','🙂','😄'];
 const pad=n=>String(n).padStart(2,'0');
@@ -305,19 +314,23 @@ function applyUI(){
 
 /* ============================ HOME VIEW (fast + history on one screen) ====== */
 let histRange='14';
+const lvlFor=f=>{if(!f)return 0;const h=hoursBetween(f.startAt,f.endAt);return h>=f.targetHours?3:h>=f.targetHours*0.75?2:1;};
 function buildHeat(done){
-  const days=[],today=new Date();
-  const lvlFor=f=>{if(!f)return 0;const h=hoursBetween(f.startAt,f.endAt);return h>=f.targetHours?3:h>=f.targetHours*0.75?2:1;};
+  const today=new Date(),tk=dateKey(today);
   if(histRange==='month'){
     const y=today.getFullYear(),m=today.getMonth(),dim=new Date(y,m+1,0).getDate();
-    for(let d=1;d<=dim;d++){const dt=new Date(y,m,d),k=dateKey(dt),future=dt>today&&k!==dateKey(today);
-      const f=done.find(x=>dateKey(x.startAt)===k);days.push({lvl:lvlFor(f),future,lab:d});}
-    return {days,month:true,title:today.toLocaleDateString(locale(),{month:'long'}),left:'1',right:t('today')};
+    const lead=(new Date(y,m,1).getDay()+6)%7,cells=[];
+    for(let i=0;i<lead;i++)cells.push({empty:true});
+    for(let d=1;d<=dim;d++){const dt=new Date(y,m,d),k=dateKey(dt);
+      const f=done.find(x=>dateKey(x.startAt)===k);
+      cells.push({day:d,lvl:lvlFor(f),future:dt>today&&k!==tk,today:k===tk});}
+    const wds=[];for(let i=0;i<7;i++)wds.push(new Date(2024,0,1+i).toLocaleDateString(locale(),{weekday:'narrow'}));
+    return {mode:'cal',title:today.toLocaleDateString(locale(),{month:'long'}),cells,wds};
   }
-  const n=parseInt(histRange,10);
+  const n=parseInt(histRange,10),days=[];
   for(let i=n-1;i>=0;i--){const dt=new Date(Date.now()-i*864e5),k=dateKey(dt),f=done.find(x=>dateKey(x.startAt)===k);
-    days.push({lvl:lvlFor(f),future:false,wd:dt.toLocaleDateString(locale(),{weekday:'narrow'})});}
-  return {days,month:false,title:t('lastNDays').replace('N',n),left:days[0].wd,right:t('today')};
+    days.push({lvl:lvlFor(f),wd:dt.toLocaleDateString(locale(),{weekday:'narrow'})});}
+  return {mode:'bars',days,title:t('lastNDays').replace('N',n),left:days[0].wd,right:t('today')};
 }
 function renderHome(){
   const s=Store.settings(),active=Store.activeFast(),tH=active?active.targetHours:targetHours();
@@ -338,6 +351,7 @@ function renderHome(){
           <div class="ring-state" id="ringState">${active?t('fasting'):t('ready')}</div>
           <div class="ring-time" id="ringTime">00:00:00</div>
           <div class="ring-sub" id="ringSub">${t('goal')} ${tH}h</div>
+          <div class="ring-stage" id="ringStage" style="display:none"></div>
         </div></div>
       <div class="window-row">
         <div class="wi"><div class="lab">${t('fastLabel')}</div><div class="val">${tH}h</div></div>
@@ -354,11 +368,12 @@ function renderHome(){
       <div class="stat-box"><div class="v">${reached}</div><div class="l">${t('goalsReached')}</div></div></div></div>
     <div class="card fade"><div class="card-h"><h3>${heat.title}</h3>
       <div class="range-seg" id="rangeSeg">
-        <div class="rc ${histRange==='7'?'sel':''}" data-r="7">7</div>
         <div class="rc ${histRange==='14'?'sel':''}" data-r="14">14</div>
         <div class="rc ${histRange==='month'?'sel':''}" data-r="month">${t('month')}</div></div></div>
-      <div class="heat ${heat.month?'month':''}">${heat.days.map(d=>`<div class="d ${d.future?'future':(d.lvl?'l'+d.lvl:'')}"></div>`).join('')}</div>
-      <div class="heat-labels"><span>${heat.left}</span><span>${heat.right}</span></div></div>
+      ${heat.mode==='cal'
+        ? `<div class="cal">${heat.wds.map(w=>`<div class="wd">${w}</div>`).join('')}${heat.cells.map(c=>c.empty?`<div class="c empty"></div>`:`<div class="c ${c.future?'future':(c.lvl?'l'+c.lvl:'')} ${c.today?'today':''}">${c.day}</div>`).join('')}</div>`
+        : `<div class="heat">${heat.days.map(d=>`<div class="d ${d.lvl?'l'+d.lvl:''}"></div>`).join('')}</div>
+      <div class="heat-labels"><span>${heat.left}</span><span>${heat.right}</span></div>`}</div>
     <div class="card fade"><div class="card-h"><h3>${t('fastHistory')}</h3><button class="add-btn" id="addFastBtn" title="${t('addFastTitle')}">+</button></div>
       ${done.length?done.map(f=>{const h=hoursBetween(f.startAt,f.endAt),ok=h>=f.targetHours;
         return `<div class="row" data-id="${f.id}"><div class="ic">${ok?'🔥':'⏳'}</div>
@@ -366,7 +381,8 @@ function renderHome(){
             <div class="s">${MOODS[f.mood]??''} ${f.note?('· '+f.note):''}</div></div>
           <div class="right"><div class="v">${fmtH(h)}</div><span class="badge ${ok?'ok':'short'}">${ok?t('goalBadge'):t('shortBadge')}</span></div></div>`;}).join('')
         :`<div class="empty"><span class="em">📭</span>${t('noFasts')}</div>`}</div>`;
-  if(active){$('#endBtn').onclick=()=>openEndSheet(active);}
+  if(active){$('#endBtn').onclick=()=>openEndSheet(active);
+    $('.ring-wrap').onclick=()=>{ringBig=ringBig==='elapsed'?'remaining':'elapsed';tick();};}
   else{$('#startBtn').onclick=()=>{Store.startFast(targetHours());toast(t('fastStarted'));render('home');};
     $('#protoGrid').querySelectorAll('.chip[data-p]').forEach(c=>c.onclick=()=>{Store.setSettings({protocol:c.dataset.p});render('home');});
     $('#customChip').onclick=openCustomSheet;}
@@ -375,12 +391,21 @@ function renderHome(){
   view.querySelectorAll('.row[data-id]').forEach(r=>r.onclick=()=>{const f=done.find(x=>x.id===r.dataset.id);if(f)openFastSheet(f);});
   tick();
 }
+let ringBig='elapsed';
 function tick(){const active=Store.activeFast(),ring=$('#ringFg');if(!ring)return;const C=2*Math.PI*118;
-  if(active){const el=Date.now()-new Date(active.startAt),tm=active.targetHours*3600000,pct=Math.min(1,el/tm);
-    ring.style.strokeDashoffset=C*(1-pct);$('#ringTime').textContent=fmtDur(el);
-    const st=$('#ringState'),sub=$('#ringSub'),ev=$('#endVal');
-    if(el>=tm){st.textContent=t('goalReached');st.className='ring-state done';sub.textContent='+'+fmtDur(el-tm)+' '+t('aboveGoal');}
-    else{st.textContent=t('fasting');st.className='ring-state active';sub.innerHTML=t('remaining')+' <b>'+fmtDur(tm-el)+'</b>';}
+  if(active){const el=Date.now()-new Date(active.startAt),tm=active.targetHours*3600000,rem=tm-el,pct=Math.min(1,el/tm);
+    ring.style.strokeDashoffset=C*(1-pct);
+    const tEl=$('#ringTime'),st=$('#ringState'),sub=$('#ringSub'),ev=$('#endVal'),stg=$('#ringStage');
+    if(ringBig==='remaining'){
+      tEl.textContent=fmtDur(Math.max(0,rem));
+      st.textContent=t('remaining');st.className='ring-state active';
+      sub.innerHTML=t('elapsedLab')+' <b>'+fmtDur(el)+'</b>';
+    }else{
+      tEl.textContent=fmtDur(el);
+      if(el>=tm){st.textContent=t('goalReached');st.className='ring-state done';sub.textContent='+'+fmtDur(el-tm)+' '+t('aboveGoal');}
+      else{st.textContent=t('fasting');st.className='ring-state active';sub.innerHTML=t('remaining')+' <b>'+fmtDur(rem)+'</b>';}
+    }
+    if(stg){const sg=stageFor(el/3600000);stg.textContent=sg.e+' '+t(sg.k);stg.style.display='';}
     const end=new Date(new Date(active.startAt).getTime()+tm);if(ev)ev.textContent=pad(end.getHours())+':'+pad(end.getMinutes());}
   else ring.style.strokeDashoffset=C;}
 
