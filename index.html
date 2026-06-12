@@ -195,6 +195,13 @@
 
   .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 16px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);box-shadow:var(--sh-raise);color:var(--text);padding:11px 18px;border-radius:14px;font-size:.81em;z-index:60;opacity:0;transition:.3s;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .splash{position:fixed;inset:0;z-index:55;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:32px 28px;text-align:center;transition:opacity .35s}
+  .splash.bye{opacity:0;pointer-events:none}
+  .splash-logo{width:140px;height:140px;border-radius:50%;background:var(--surface);box-shadow:var(--sh-pop);display:grid;place-items:center;margin-bottom:6px}
+  .splash h1{font-size:2em;font-weight:700;letter-spacing:2px;text-shadow:0 1px 0 var(--press)}
+  .splash .sub{font-size:.84em;color:var(--muted);max-width:300px;line-height:1.5}
+  .splash .acts{width:100%;max-width:320px;margin-top:10px}
+  .splash .hint{font-size:.66em;color:var(--muted-2)}
   .fade{animation:fade .4s ease}@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   .hidden{display:none!important}
   .ic-svg{vertical-align:-3px;flex:0 0 auto}
@@ -228,7 +235,7 @@ const Store=(function(){
   const detectLang=()=>{const l=(navigator.language||'en').toLowerCase();return /^(hr|bs|sr|sh|me)/.test(l)?'hr':'en';};
   function defaults(){return{
     schema:SCHEMA, user:{id:uuid(),name:'',uid:null,createdAt:nowISO()},
-    settings:{protocol:'16:8',customHours:16,lang:detectLang(),
+    settings:{protocol:'16:8',customHours:16,lang:detectLang(),onboarded:false,
       ui:{theme:'auto'}},
     fasts:[], updatedAt:nowISO()
   };}
@@ -311,7 +318,10 @@ const Sync=(function(){
       await libs();
       fb.auth.onAuthStateChanged(fb.authI,async u=>{
         user=u;
-        if(u){state='in';Store.setUid(u.uid);try{await merge();listen();}catch(e){state='err';}}
+        if(u){state='in';Store.setUid(u.uid);
+          if(!Store.settings().onboarded)Store.setSettings({onboarded:true});
+          hideSplash();
+          try{await merge();listen();}catch(e){state='err';}}
         else{state='out';stop();}
         updateSyncUI();renderHome();
       });
@@ -367,6 +377,7 @@ const DICT={
     overview:'Pregled',streakStat:'Streak',totalFasts:'Ukupno fastova',average:'Prosjek',goalsReached:'Cilj dostignut',today:'danas',fastHistory:'Povijest fasta',goalBadge:'cilj ✓',shortBadge:'kraće',noFasts:'Još nema završenih fastova.<br>Započni prvi gore.',
     nameNick:'Ime / nadimak',namePh:'npr. Pho',savedForGroups:'spremljen za buduće grupe',language:'Jezik',
     account:'Račun',signInGoogle:'Prijava Googleom',signOutBtn:'Odjava',syncedAs:'Sinkronizirano',localOnly:'Podaci su spremljeni samo na ovom uređaju.',signInErr:'Prijava nije uspjela',
+    splashSub:'Prati svoj fast. Podaci su tvoji — samo na ovom uređaju, ili sinkronizirani preko Google računa.',splashSkip:'Nastavi bez računa',splashHint:'Prijavu možeš uključiti kasnije u postavkama.',
     data:'Podaci',exportBtn:'Export (backup JSON)',importBtn:'Import iz fajla',resetAll:'Resetiraj sve',memoryWarn:'Spremanje na disk nije dostupno u ovom pregledu — podaci se neće zadržati. Radi normalno kad je app hostan ili spremljen kao fajl.',
     footer:'NULA v2 · svatko za sebe',saved:'Spremljeno',
     elapsedLab:'proteklo',stFed:'Sito stanje',stSugar:'Šećer pada',stBurn:'Sagorijevanje masti',stKetosis:'Ketoza',stAuto:'Autofagija',
@@ -382,6 +393,7 @@ const DICT={
     overview:'Overview',streakStat:'Streak',totalFasts:'Total fasts',average:'Average',goalsReached:'Goals reached',today:'today',fastHistory:'Fast history',goalBadge:'goal ✓',shortBadge:'short',noFasts:'No completed fasts yet.<br>Start your first one above.',
     nameNick:'Name / nickname',namePh:'e.g. Pho',savedForGroups:'saved for future groups',language:'Language',
     account:'Account',signInGoogle:'Sign in with Google',signOutBtn:'Sign out',syncedAs:'Synced',localOnly:'Data is stored on this device only.',signInErr:'Sign-in failed',
+    splashSub:'Track your fast. Your data is yours — on this device only, or synced with your Google account.',splashSkip:'Continue without account',splashHint:'You can sign in later in settings.',
     data:'Data',exportBtn:'Export (backup JSON)',importBtn:'Import from file',resetAll:'Reset everything',memoryWarn:'Disk storage is unavailable in this preview — data will not persist. Works normally once the app is hosted or saved as a file.',
     footer:'NULA v2 · solo mode',saved:'Saved',
     elapsedLab:'elapsed',stFed:'Fed',stSugar:'Sugar dropping',stBurn:'Fat burning',stKetosis:'Ketosis',stAuto:'Autophagy',
@@ -689,12 +701,36 @@ function closeSheet(){const sc=$('#scrim');if(!sc.classList.contains('show'))ret
   sc.classList.remove('show');sc.classList.add('closing');
   clearTimeout(sheetT);sheetT=setTimeout(()=>{sc.classList.remove('closing');sc.innerHTML='';},230);}
 
+/* ============================ SPLASH (first run: login ili lokalno) ====== */
+function showSplash(){
+  if(document.querySelector('.splash'))return;
+  const el=document.createElement('div');el.className='splash';
+  el.innerHTML=`
+    <div class="splash-logo"><svg width="84" height="84" viewBox="0 0 512 512" aria-hidden="true">
+      <circle cx="256" cy="256" r="150" fill="none" stroke="var(--fire)" stroke-width="46"/>
+      <circle cx="256" cy="106" r="34" fill="var(--fire)" stroke="var(--surface)" stroke-width="10"/></svg></div>
+    <h1>NULA</h1>
+    <div class="sub">${t('splashSub')}</div>
+    <div class="acts">
+      <button class="btn btn-fire" id="splashLogin">${I('google',15)} ${t('signInGoogle')}</button>
+      <button class="btn btn-ghost mt" id="splashSkip">${t('splashSkip')}</button>
+    </div>
+    <div class="hint">${t('splashHint')}</div>`;
+  document.body.appendChild(el);
+  const done=()=>{Store.setSettings({onboarded:true});hideSplash();};
+  el.querySelector('#splashLogin').onclick=()=>Sync.signIn().then(done).catch(e=>toast(t('signInErr')+': '+e.message));
+  el.querySelector('#splashSkip').onclick=done;
+}
+function hideSplash(){const el=document.querySelector('.splash');if(!el)return;
+  el.classList.add('bye');setTimeout(()=>el.remove(),380);}
+
 Store.init();
 applyUI();
 $('#settingsBtn').innerHTML=I('gear',20);
 $('#settingsBtn').onclick=openSettingsSheet;
 renderHome();
 updateSyncUI();
+if(Sync.has()&&!Store.settings().onboarded)showSplash();
 Sync.start();
 window.matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>{if(Store.settings().ui.theme==='auto')applyUI();});
 setInterval(tick,1000);
