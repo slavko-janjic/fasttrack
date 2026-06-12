@@ -86,7 +86,7 @@
   .ring-wrap{position:relative;width:262px;height:262px;margin:14px auto 12px;max-width:80vw;max-height:80vw;cursor:pointer;border-radius:50%}
   .ring-wrap::before{content:"";position:absolute;inset:-6px;border-radius:50%;background:var(--surface);box-shadow:var(--sh-pop)}
   .dial-face{position:absolute;inset:14px;border-radius:50%;background:var(--surface);box-shadow:var(--sh-inset)}
-  .ring-wrap svg{position:absolute;inset:14px;width:calc(100% - 28px);height:calc(100% - 28px);transform:rotate(-90deg);z-index:1}
+  .ring-wrap > svg{position:absolute;inset:14px;width:calc(100% - 28px);height:calc(100% - 28px);transform:rotate(-90deg);z-index:1}
   .ticks line{stroke:var(--line);stroke-width:1}
   .ticks line.mj{stroke:var(--line-2);stroke-width:2}
   .ring-bg{fill:none;stroke:var(--surface-3);stroke-width:14}
@@ -160,7 +160,7 @@
   .sdot{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;box-shadow:0 0 6px -1px var(--gl)}
 
   .empty{text-align:center;color:var(--muted);font-size:.81em;padding:24px 8px}
-  .empty .em{font-size:2.3em;display:block;margin-bottom:8px;opacity:.6}
+  .empty .em{display:block;margin-bottom:8px;opacity:.6}
 
   .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .stat-box{background:var(--surface);box-shadow:var(--sh-inset);border-radius:16px;padding:14px}
@@ -193,6 +193,13 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .fade{animation:fade .4s ease}@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   .hidden{display:none!important}
+  .ic-svg{vertical-align:-3px;flex:0 0 auto}
+  .row .ic{color:var(--muted)} .row .ic.fire{color:var(--fire)}
+  .row .ic .ic-svg,.rate .dot .ic-svg{vertical-align:0}
+  .stage-strip .stg .se{height:18px;display:grid;place-items:center}
+  .rate .dot{color:var(--muted)} .rate .dot.sel{color:var(--fire)}
+  .ring-stage .ic-svg{vertical-align:-2px}
+  .stat-box .l .ic-svg{vertical-align:-2px;color:var(--fire)}
 </style>
 </head>
 <body>
@@ -250,13 +257,13 @@ const Store=(function(){
 const DICT={
   hr:{navSettings:'Postavke',
     ready:'Spreman',fasting:'Fast u tijeku',goalReached:'Cilj dostignut!',goal:'cilj',remaining:'preostalo',aboveGoal:'iznad cilja',
-    fastLabel:'Fast',eatingWindow:'Prozor jela',goalAt:'Cilj u',protocol:'Protokol',endFast:'Završi fast',startFast:'Započni fast',fastStarted:'Fast započet 🔥',
-    niceDone:'Bravo! 🔥',fastEnded:'Fast završen',duration:'Trajanje',howFeel:'Kako se osjećaš?',energyLevel:'Razina energije',noteOpt:'Bilješka (opcionalno)',notePh:'npr. lagano, malo gladi navečer...',saveEnd:'Spremi i završi',cancel:'Odustani',fastSaved:'Fast spremljen ✓',
+    fastLabel:'Fast',eatingWindow:'Prozor jela',goalAt:'Cilj u',protocol:'Protokol',endFast:'Završi fast',startFast:'Započni fast',fastStarted:'Fast započet',
+    niceDone:'Bravo!',fastEnded:'Fast završen',duration:'Trajanje',howFeel:'Kako se osjećaš?',energyLevel:'Razina energije',noteOpt:'Bilješka (opcionalno)',notePh:'npr. lagano, malo gladi navečer...',saveEnd:'Spremi i završi',cancel:'Odustani',fastSaved:'Fast spremljen ✓',
     customProtocol:'Custom protokol',howManyHours:'Koliko sati želiš fastati?',fastingHours:'Sati fasta',save:'Spremi',quickPick:'Brzi izbor',days:'dana',day:'dan',month:'Mjesec',lastNDays:'Zadnjih N dana',
     editFast:'Uredi fast',addFastTitle:'Dodaj fast',startTime:'Početak',endTime:'Kraj',deleteFastBtn:'Obriši fast',deleteFastConfirm:'Obrisati ovaj fast?',invalidRange:'Kraj mora biti nakon početka',
-    overview:'Pregled',streakStat:'🔥 Streak',totalFasts:'Ukupno fastova',average:'Prosjek',goalsReached:'Cilj dostignut',today:'danas',fastHistory:'Povijest fasta',goalBadge:'cilj ✓',shortBadge:'kraće',noFasts:'Još nema završenih fastova.<br>Započni prvi gore.',
+    overview:'Pregled',streakStat:'Streak',totalFasts:'Ukupno fastova',average:'Prosjek',goalsReached:'Cilj dostignut',today:'danas',fastHistory:'Povijest fasta',goalBadge:'cilj ✓',shortBadge:'kraće',noFasts:'Još nema završenih fastova.<br>Započni prvi gore.',
     nameNick:'Ime / nadimak',namePh:'npr. Pho',savedForGroups:'spremljen za buduće grupe',language:'Jezik',
-    data:'Podaci',exportBtn:'⬇ Export (backup JSON)',importBtn:'⬆ Import iz fajla',resetAll:'Resetiraj sve',memoryWarn:'⚠ Spremanje na disk nije dostupno u ovom pregledu — podaci se neće zadržati. Radi normalno kad je app hostan ili spremljen kao fajl.',
+    data:'Podaci',exportBtn:'Export (backup JSON)',importBtn:'Import iz fajla',resetAll:'Resetiraj sve',memoryWarn:'Spremanje na disk nije dostupno u ovom pregledu — podaci se neće zadržati. Radi normalno kad je app hostan ili spremljen kao fajl.',
     footer:'NULA v1 · svatko za sebe',saved:'Spremljeno',
     elapsedLab:'proteklo',stFed:'Sito stanje',stSugar:'Šećer pada',stBurn:'Sagorijevanje masti',stKetosis:'Ketoza',stAuto:'Autofagija',
     theme:'Tema',themeAuto:'Auto',themeLight:'Svijetla',themeDark:'Tamna',
@@ -264,13 +271,13 @@ const DICT={
     today2:'Danas',yesterday:'Jučer'},
   en:{navSettings:'Settings',
     ready:'Ready',fasting:'Fasting',goalReached:'Goal reached!',goal:'goal',remaining:'remaining',aboveGoal:'above goal',
-    fastLabel:'Fast',eatingWindow:'Eating window',goalAt:'Goal at',protocol:'Protocol',endFast:'End fast',startFast:'Start fast',fastStarted:'Fast started 🔥',
-    niceDone:'Nice! 🔥',fastEnded:'Fast ended',duration:'Duration',howFeel:'How do you feel?',energyLevel:'Energy level',noteOpt:'Note (optional)',notePh:'e.g. easy, a bit hungry in the evening...',saveEnd:'Save & end',cancel:'Cancel',fastSaved:'Fast saved ✓',
+    fastLabel:'Fast',eatingWindow:'Eating window',goalAt:'Goal at',protocol:'Protocol',endFast:'End fast',startFast:'Start fast',fastStarted:'Fast started',
+    niceDone:'Nice!',fastEnded:'Fast ended',duration:'Duration',howFeel:'How do you feel?',energyLevel:'Energy level',noteOpt:'Note (optional)',notePh:'e.g. easy, a bit hungry in the evening...',saveEnd:'Save & end',cancel:'Cancel',fastSaved:'Fast saved ✓',
     customProtocol:'Custom protocol',howManyHours:'How many hours do you want to fast?',fastingHours:'Fasting hours',save:'Save',quickPick:'Quick pick',days:'days',day:'day',month:'Month',lastNDays:'Last N days',
     editFast:'Edit fast',addFastTitle:'Add fast',startTime:'Start',endTime:'End',deleteFastBtn:'Delete fast',deleteFastConfirm:'Delete this fast?',invalidRange:'End must be after start',
-    overview:'Overview',streakStat:'🔥 Streak',totalFasts:'Total fasts',average:'Average',goalsReached:'Goals reached',today:'today',fastHistory:'Fast history',goalBadge:'goal ✓',shortBadge:'short',noFasts:'No completed fasts yet.<br>Start your first one above.',
+    overview:'Overview',streakStat:'Streak',totalFasts:'Total fasts',average:'Average',goalsReached:'Goals reached',today:'today',fastHistory:'Fast history',goalBadge:'goal ✓',shortBadge:'short',noFasts:'No completed fasts yet.<br>Start your first one above.',
     nameNick:'Name / nickname',namePh:'e.g. Pho',savedForGroups:'saved for future groups',language:'Language',
-    data:'Data',exportBtn:'⬇ Export (backup JSON)',importBtn:'⬆ Import from file',resetAll:'Reset everything',memoryWarn:'⚠ Disk storage is unavailable in this preview — data will not persist. Works normally once the app is hosted or saved as a file.',
+    data:'Data',exportBtn:'Export (backup JSON)',importBtn:'Import from file',resetAll:'Reset everything',memoryWarn:'Disk storage is unavailable in this preview — data will not persist. Works normally once the app is hosted or saved as a file.',
     footer:'NULA v1 · solo mode',saved:'Saved',
     elapsedLab:'elapsed',stFed:'Fed',stSugar:'Sugar dropping',stBurn:'Fat burning',stKetosis:'Ketosis',stAuto:'Autophagy',
     theme:'Theme',themeAuto:'Auto',themeLight:'Light',themeDark:'Dark',
@@ -284,10 +291,31 @@ const locale=()=>lang()==='hr'?'hr-HR':'en-GB';
 /* ============================ HELPERS ============================ */
 const $=s=>document.querySelector(s);
 const view=$('#view');
+const ICONS={
+  gear:'<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/>',
+  utensils:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
+  tdown:'<polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>',
+  flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  recycle:'<path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>',
+  hourglass:'<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  inbox:'<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  trash:'<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  warn:'<path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  mood0:'<circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/><path d="M8.5 16.5s1.3-2.5 3.5-2.5 3.5 2.5 3.5 2.5"/>',
+  mood1:'<circle cx="12" cy="12" r="9"/><line x1="9" y1="9.5" x2="9.01" y2="9.5"/><line x1="15" y1="9.5" x2="15.01" y2="9.5"/><path d="M9 15.5s1.3-1 3-1 3 1 3 1"/>',
+  mood2:'<circle cx="12" cy="12" r="9"/><line x1="9" y1="9.5" x2="9.01" y2="9.5"/><line x1="15" y1="9.5" x2="15.01" y2="9.5"/><line x1="9" y1="15" x2="15" y2="15"/>',
+  mood3:'<circle cx="12" cy="12" r="9"/><line x1="9" y1="9.5" x2="9.01" y2="9.5"/><line x1="15" y1="9.5" x2="15.01" y2="9.5"/><path d="M9 14.5s1.3 1.5 3 1.5 3-1.5 3-1.5"/>',
+  mood4:'<circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/><path d="M8 13.5s1.5 3 4 3 4-3 4-3"/>'
+};
+const I=(n,s=18)=>`<svg class="ic-svg" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
 const PROTOCOLS=[{id:'16:8',h:16},{id:'18:6',h:18},{id:'20:4',h:20},{id:'OMAD',h:23}];
-const STAGES=[{h:0,e:'🍽️',k:'stFed'},{h:4,e:'📉',k:'stSugar'},{h:12,e:'🔥',k:'stBurn'},{h:16,e:'⚡',k:'stKetosis'},{h:24,e:'♻️',k:'stAuto'}];
+const STAGES=[{h:0,i:'utensils',k:'stFed'},{h:4,i:'tdown',k:'stSugar'},{h:12,i:'flame',k:'stBurn'},{h:16,i:'zap',k:'stKetosis'},{h:24,i:'recycle',k:'stAuto'}];
 const stageFor=h=>STAGES.reduce((a,s)=>h>=s.h?s:a,STAGES[0]);
-const MOODS=['😣','😕','😐','🙂','😄'];
+const MOODS=['mood0','mood1','mood2','mood3','mood4'];
 const pad=n=>String(n).padStart(2,'0');
 const hhmm=d=>{const x=new Date(d);return pad(x.getHours())+':'+pad(x.getMinutes());};
 const TICKS=Array.from({length:60},(_,i)=>{const a=i*Math.PI/30,mj=i%5===0,r1=107,r2=mj?99:103;
@@ -363,12 +391,12 @@ function renderHome(){
         <div class="wi"><div class="lab">${t('eatingWindow')}</div><div class="val">${Math.max(0,24-tH)}h</div></div>
         <div class="wi"><div class="lab">${active?t('goalAt'):t('protocol')}</div><div class="val" id="endVal">${active?'':(isCustom?tH+'h':s.protocol)}</div></div>
       </div>
-      <div class="stage-strip" id="stageStrip">${STAGES.map(st=>`<div class="stg" title="${t(st.k)}"><span class="se">${st.e}</span><span class="sh">${st.h}h</span></div>`).join('')}</div>
-      ${active?'':`<div class="proto-grid mt" id="protoGrid">${PROTOCOLS.map(p=>`<div class="chip ${s.protocol===p.id?'sel':''}" data-p="${p.id}"><div class="name">${p.id}</div></div>`).join('')}<div class="chip chip-cog ${isCustom?'sel':''}" id="customChip" title="${t('customProtocol')}"><div class="name">⚙️</div></div></div>`}
+      <div class="stage-strip" id="stageStrip">${STAGES.map(st=>`<div class="stg" title="${t(st.k)}"><span class="se">${I(st.i,16)}</span><span class="sh">${st.h}h</span></div>`).join('')}</div>
+      ${active?'':`<div class="proto-grid mt" id="protoGrid">${PROTOCOLS.map(p=>`<div class="chip ${s.protocol===p.id?'sel':''}" data-p="${p.id}"><div class="name">${p.id}</div></div>`).join('')}<div class="chip chip-cog ${isCustom?'sel':''}" id="customChip" title="${t('customProtocol')}"><div class="name">${I('gear',16)}</div></div></div>`}
       ${active?`<button class="btn btn-stop mt" id="endBtn">${t('endFast')}</button>`:`<button class="btn btn-fire mt" id="startBtn">${t('startFast')}</button>`}
     </div>
     <div class="card${fc}"><div class="card-h"><h3>${t('overview')}</h3></div><div class="stat-grid">
-      <div class="stat-box"><div class="v">${computeStreak()}</div><div class="l">${t('streakStat')}</div></div>
+      <div class="stat-box"><div class="v">${computeStreak()}</div><div class="l">${I('flame',11)} ${t('streakStat')}</div></div>
       <div class="stat-box"><div class="v">${done.length}</div><div class="l">${t('totalFasts')}</div></div>
       <div class="stat-box"><div class="v">${avg?fmtH(avg):'—'}</div><div class="l">${t('average')}</div></div>
       <div class="stat-box"><div class="v">${reached}</div><div class="l">${t('goalsReached')}</div></div></div></div>
@@ -380,13 +408,13 @@ function renderHome(){
         ? `<div class="cal">${heat.wds.map(w=>`<div class="wd">${w}</div>`).join('')}${heat.cells.map(c=>c.empty?`<div class="c empty"></div>`:`<div class="c ${c.future?'future':''} ${c.today?'today':''}">${c.day}${c.si>=0?`<i class="sdot st${c.si}"></i>`:''}</div>`).join('')}</div>`
         : `<div class="heat">${heat.days.map(d=>`<div class="d ${d.si>=0?'st'+d.si:''}"></div>`).join('')}</div>
       <div class="heat-labels"><span>${heat.left}</span><span>${heat.right}</span></div>`}</div>
-    <div class="card${fc}"><div class="card-h"><h3>${t('fastHistory')}</h3><button class="add-btn" id="addFastBtn" title="${t('addFastTitle')}" aria-label="${t('addFastTitle')}">+</button></div>
+    <div class="card${fc}"><div class="card-h"><h3>${t('fastHistory')}</h3><button class="add-btn" id="addFastBtn" title="${t('addFastTitle')}" aria-label="${t('addFastTitle')}">${I('plus',16)}</button></div>
       ${done.length?done.map(f=>{const h=hoursBetween(f.startAt,f.endAt),ok=h>=f.targetHours;
-        return `<div class="row" data-id="${f.id}"><div class="ic">${ok?'🔥':'⏳'}</div>
+        return `<div class="row" data-id="${f.id}"><div class="ic ${ok?'fire':''}">${I(ok?'flame':'hourglass',17)}</div>
           <div class="meta"><div class="t">${relDay(f.startAt)} · ${f.targetHours}h ${t('goal')}</div>
-            <div class="s">${hhmm(f.startAt)}–${hhmm(f.endAt)}${f.mood!=null?' · '+MOODS[f.mood]:''}${f.note?(' · '+f.note):''}</div></div>
+            <div class="s">${hhmm(f.startAt)}–${hhmm(f.endAt)}${f.mood!=null?' · '+I(MOODS[f.mood],13):''}${f.note?(' · '+f.note):''}</div></div>
           <div class="right"><div class="v">${fmtH(h)}</div><span class="badge ${ok?'ok':'short'}">${ok?t('goalBadge'):t('shortBadge')}</span></div></div>`;}).join('')
-        :`<div class="empty"><span class="em">📭</span>${t('noFasts')}</div>`}</div>`;
+        :`<div class="empty"><span class="em">${I('inbox',36)}</span>${t('noFasts')}</div>`}</div>`;
   if(active){$('#endBtn').onclick=()=>openEndSheet(active);
     $('.ring-wrap').onclick=()=>{ringBig=ringBig==='elapsed'?'remaining':'elapsed';tick();};}
   else{$('#startBtn').onclick=()=>{Store.startFast(targetHours());toast(t('fastStarted'));renderHome();};
@@ -414,7 +442,7 @@ function tick(){const active=Store.activeFast(),ring=$('#ringFg');if(!ring)retur
       else{st.textContent=t('fasting');st.className='ring-state active';sub.innerHTML=t('remaining')+' <b>'+fmtDur(rem)+'</b>';}
     }
     si=STAGES.indexOf(stageFor(el/3600000));const card=$('.timer-card');if(card)card.style.setProperty('--sc','var(--st'+si+')');
-    if(stg){stg.textContent=STAGES[si].e+' '+t(STAGES[si].k);stg.style.display='';}
+    if(stg){stg.innerHTML=I(STAGES[si].i,12)+' '+t(STAGES[si].k);stg.style.display='';}
     const end=new Date(new Date(active.startAt).getTime()+tm);if(ev)ev.textContent=pad(end.getHours())+':'+pad(end.getMinutes());}
   else ring.style.strokeDashoffset=C;
   if(dot){if(active&&pct>.004){const a=2*Math.PI*pct;
@@ -426,7 +454,7 @@ function tick(){const active=Store.activeFast(),ring=$('#ringFg');if(!ring)retur
 function openEndSheet(fast){const el=Date.now()-new Date(fast.startAt),reached=el>=fast.targetHours*3600000;let mood=null,energy=null;
   openSheet(`<h2>${reached?t('niceDone'):t('fastEnded')}</h2>
     <div class="sd">${t('duration')}: ${fmtDur(el)} · ${t('goal')} ${fast.targetHours}h ${reached?'✓':''}</div>
-    <label class="fl">${t('howFeel')}</label><div class="rate" id="moodRate">${MOODS.map((m,i)=>`<div class="dot" data-i="${i}">${m}</div>`).join('')}</div>
+    <label class="fl">${t('howFeel')}</label><div class="rate" id="moodRate">${MOODS.map((m,i)=>`<div class="dot" data-i="${i}">${I(m,22)}</div>`).join('')}</div>
     <label class="fl">${t('energyLevel')}</label><div class="rate" id="enRate">${[1,2,3,4,5].map(i=>`<div class="dot" data-i="${i}">${i}</div>`).join('')}</div>
     <label class="fl">${t('noteOpt')}</label><textarea class="fi" id="noteIn" placeholder="${t('notePh')}"></textarea>
     <button class="btn btn-fire mt" id="saveEnd">${t('saveEnd')}</button><button class="btn btn-ghost mt" id="cancelEnd">${t('cancel')}</button>`);
@@ -467,7 +495,7 @@ function openFastSheet(fast){const h=hoursBetween(fast.startAt,fast.endAt),ok=h>
     <div class="sd">${relDay(fast.startAt)} · ${fmtH(h)} · ${t('goal')} ${fast.targetHours}h ${ok?'✓':''}</div>
     ${fastFormFields('ef',fast.startAt,fast.endAt,fast.targetHours,fast.note)}
     <button class="btn btn-fire mt" id="efSave">${t('save')}</button>
-    <button class="btn btn-ghost mt" id="efDelete" style="color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,transparent)">${t('deleteFastBtn')}</button>`);
+    <button class="btn btn-ghost mt" id="efDelete" style="color:var(--danger)">${I('trash',15)} ${t('deleteFastBtn')}</button>`);
   $('#efSave').onclick=()=>{const v=readFastForm('ef',fast.targetHours);if(!v)return;
     Store.updateFast(fast.id,v);closeSheet();toast(t('saved'));renderHome();};
   $('#efDelete').onclick=()=>confirmSheet(t('deleteFastConfirm'),t('deleteFastBtn'),()=>{Store.deleteFast(fast.id);closeSheet();renderHome();});}
@@ -494,11 +522,11 @@ function openSettingsSheet(){
       <div class="chip ${s.ui.theme==='light'?'sel':''}" data-th="light"><div class="name">${t('themeLight')}</div></div>
       <div class="chip ${s.ui.theme==='dark'?'sel':''}" data-th="dark"><div class="name">${t('themeDark')}</div></div></div>
     <label class="fl mt">${t('data')}</label>
-    <button class="btn btn-ghost" id="exportBtn">${t('exportBtn')}</button>
-    <button class="btn btn-ghost mt" id="importBtn">${t('importBtn')}</button>
+    <button class="btn btn-ghost" id="exportBtn">${I('download',15)} ${t('exportBtn')}</button>
+    <button class="btn btn-ghost mt" id="importBtn">${I('upload',15)} ${t('importBtn')}</button>
     <input type="file" id="importFile" accept="application/json" class="hidden">
-    <button class="btn btn-ghost mt" id="resetBtn" style="color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,transparent)">${t('resetAll')}</button>
-    ${Store.memoryOnly?`<div class="empty" style="text-align:left;color:var(--warn);font-size:.62em;padding:10px 0 0">${t('memoryWarn')}</div>`:''}
+    <button class="btn btn-ghost mt" id="resetBtn" style="color:var(--danger)">${I('trash',15)} ${t('resetAll')}</button>
+    ${Store.memoryOnly?`<div class="empty" style="text-align:left;color:var(--warn);font-size:.62em;padding:10px 0 0">${I('warn',13)} ${t('memoryWarn')}</div>`:''}
     <div class="empty" style="padding:14px 8px 0;font-size:.62em">${t('footer')}</div>`);
   $('#nameIn').onchange=e=>{Store.setUserName(e.target.value.trim());toast(t('saved'));};
   $('#langSeg').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{Store.setSettings({lang:c.dataset.l});applyUI();renderHome();openSettingsSheet();});
@@ -535,6 +563,7 @@ function closeSheet(){const sc=$('#scrim');if(!sc.classList.contains('show'))ret
 
 Store.init();
 applyUI();
+$('#settingsBtn').innerHTML=I('gear',20);
 $('#settingsBtn').onclick=openSettingsSheet;
 renderHome();
 window.matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>{if(Store.settings().ui.theme==='auto')applyUI();});
