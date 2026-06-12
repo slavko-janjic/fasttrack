@@ -281,7 +281,14 @@ const Store=(function(){
    FIREBASE_CONFIG postavljen; s null-om nema ni mrežnih poziva ni UI-ja.
    Setup konzole: vidi docs/V2-SYNC.md. Ovdje zalijepi config objekt:
    ========================================================================= */
-const FIREBASE_CONFIG=null; /* ← npr. {apiKey:"...",authDomain:"...",projectId:"...",...} */
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyAtwRM-2bPilD1_AlzxXlWv8rYxgiQovTw",
+  authDomain:"nula-fast.firebaseapp.com",
+  projectId:"nula-fast",
+  storageBucket:"nula-fast.firebasestorage.app",
+  messagingSenderId:"269684230112",
+  appId:"1:269684230112:web:a4d4c8a8498679d2358d85"
+};
 
 const Sync=(function(){
   let fb=null,user=null,unsub=null,state='off'; // off|out|in|err
@@ -361,7 +368,7 @@ const DICT={
     nameNick:'Ime / nadimak',namePh:'npr. Pho',savedForGroups:'spremljen za buduće grupe',language:'Jezik',
     account:'Račun',signInGoogle:'Prijava Googleom',signOutBtn:'Odjava',syncedAs:'Sinkronizirano',localOnly:'Podaci su spremljeni samo na ovom uređaju.',signInErr:'Prijava nije uspjela',
     data:'Podaci',exportBtn:'Export (backup JSON)',importBtn:'Import iz fajla',resetAll:'Resetiraj sve',memoryWarn:'Spremanje na disk nije dostupno u ovom pregledu — podaci se neće zadržati. Radi normalno kad je app hostan ili spremljen kao fajl.',
-    footer:'NULA v1 · svatko za sebe',saved:'Spremljeno',
+    footer:'NULA v2 · svatko za sebe',saved:'Spremljeno',
     elapsedLab:'proteklo',stFed:'Sito stanje',stSugar:'Šećer pada',stBurn:'Sagorijevanje masti',stKetosis:'Ketoza',stAuto:'Autofagija',
     theme:'Tema',themeAuto:'Auto',themeLight:'Svijetla',themeDark:'Tamna',
     resetTitle:'Resetirati sve?',resetDesc:'Ovo briše SVE podatke i ne može se poništiti. Za potvrdu upiši riječ:',resetWord:'RESETIRAJ',deleteAll:'Obriši sve',
@@ -376,7 +383,7 @@ const DICT={
     nameNick:'Name / nickname',namePh:'e.g. Pho',savedForGroups:'saved for future groups',language:'Language',
     account:'Account',signInGoogle:'Sign in with Google',signOutBtn:'Sign out',syncedAs:'Synced',localOnly:'Data is stored on this device only.',signInErr:'Sign-in failed',
     data:'Data',exportBtn:'Export (backup JSON)',importBtn:'Import from file',resetAll:'Reset everything',memoryWarn:'Disk storage is unavailable in this preview — data will not persist. Works normally once the app is hosted or saved as a file.',
-    footer:'NULA v1 · solo mode',saved:'Saved',
+    footer:'NULA v2 · solo mode',saved:'Saved',
     elapsedLab:'elapsed',stFed:'Fed',stSugar:'Sugar dropping',stBurn:'Fat burning',stKetosis:'Ketosis',stAuto:'Autophagy',
     theme:'Theme',themeAuto:'Auto',themeLight:'Light',themeDark:'Dark',
     resetTitle:'Reset everything?',resetDesc:'This deletes ALL data and cannot be undone. Type the word to confirm:',resetWord:'RESET',deleteAll:'Delete everything',
